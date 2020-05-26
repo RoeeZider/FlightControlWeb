@@ -84,7 +84,7 @@ namespace FlightControlWeb.Models
             }
             //|| f.Passengers.ToString() == null
             //and for any location / segments
-            if (f.segments==null || f.initialLocation == null )
+            if (f.Segments==null || f.InitialLocation == null )
             {
                 return false;
             }
@@ -152,7 +152,9 @@ namespace FlightControlWeb.Models
 
         FlightPlan IFlightManager.GetFlightPlanById(string id)
         {
-            return flightPlan[id];
+            FlightPlan fp;
+            flightPlan.TryGetValue(id, out fp);
+            return fp;
         }
 
         public async Task<FlightPlan> GetFlightPlanByServer(string id)
@@ -223,8 +225,8 @@ namespace FlightControlWeb.Models
 
             foreach(KeyValuePair<string,FlightPlan> fp in flightPlan)
             {
-                flightSegments = fp.Value.segments;
-                flightTime = ConvertToDateTime(fp.Value.initialLocation.Date_time);
+                flightSegments = fp.Value.Segments;
+                flightTime = ConvertToDateTime(fp.Value.InitialLocation.Date_time);
                 if (flightTime > time) continue;
 
                 int num = flightSegments.Count;
@@ -240,7 +242,7 @@ namespace FlightControlWeb.Models
                 //
 
                 Flight f = new Flight();
-                if (CheckSegments(flightSegments, f, flightTime, time,fp.Value.initialLocation.Latitude, fp.Value.initialLocation.Longitude))
+                if (CheckSegments(flightSegments, f, flightTime, time,fp.Value.InitialLocation.Latitude, fp.Value.InitialLocation.Longitude))
                 {
                     flights.Add(f);
                 }
