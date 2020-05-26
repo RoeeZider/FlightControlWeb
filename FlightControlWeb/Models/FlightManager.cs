@@ -198,16 +198,17 @@ namespace FlightControlWeb.Models
         public async Task<List<Flight>> GetExternalFlight(string URL,string dateTime)
         {
             List<Flight> exteranlFlight = new List<Flight>();
-            string url = "https://" + URL + "/api/Flights?relative_to=" + dateTime.ToString();
+            List<Flight> temp = new List<Flight>();
+            string url = URL + "/api/Flights?relative_to=" + dateTime.ToString();
             HttpClient client = new HttpClient();
            
                 var respone = await client.GetStringAsync(url);
           
-            dynamic json = JsonConvert.DeserializeObject<List<Flight>>(respone.ToString());
-            foreach(Flight f in json)
+            temp = JsonConvert.DeserializeObject<List<Flight>>(respone.ToString());
+            foreach(Flight f in temp)
             {
-                f.Is_external = true;
                 exteranlFlight.Add(f);
+                f.Is_external = true;
             }
             return  exteranlFlight;
         }
