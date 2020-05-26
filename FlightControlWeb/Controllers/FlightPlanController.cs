@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using FlightControlWeb.Models;
 using Microsoft.AspNetCore.Http;
@@ -30,28 +31,24 @@ namespace FlightControlWeb.Controllers
 
         // GET: api/FlightPlan/5
         [HttpGet("{id}", Name = "Get")]
-        public FlightPlan Get(string id)
+        public async Task<ActionResult< FlightPlan>> Get(string id)
         {
-            return flightManager.GetFlightPlanById(id);
+            FlightPlan fp= flightManager.GetFlightPlanById(id);
+            if (fp != null) return Ok(fp);
+
+            fp = await flightManager.GetFlightPlanByServer(id);
+            if (fp != null) return Ok(fp);
+            return NotFound(id);
         }
 
-        // POST: api/FlightPlan
+
+        //// POST: api/FlightPlan
         [HttpPost]
-        public void addFlightPlan([FromBody] FlightPlan f)
+        public ActionResult addFlightPlan([FromBody] FlightPlan f)
         {
-            flightManager.AddFlightt2(f);
-        }
-
-        // PUT: api/FlightPlan/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            bool ok=flightManager.AddFlighttPlan(f);
+            if (!ok) return BadRequest("flightPlan isnt valid");
+            return Ok(f);
         }
     }
 }

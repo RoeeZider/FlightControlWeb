@@ -12,15 +12,17 @@ namespace FlightControlWeb.Models
        // Flight GetFlightById(int id);
         void AddFlightt(Flight p);
         void UpdateFlight(Flight p);
-        void DeleteFlight(string id);
+        bool DeleteFlight(string id);
 
-        public void AddFlightt2(FlightPlan f);
-        List<Flight> GetAllFlights(string dateTime);
+        public bool AddFlighttPlan(FlightPlan f);
+        Task<List<Flight>> GetAllFlights(string dateTime);
+        Task<FlightPlan> GetFlightPlanByServer(string id);
+
         List<Flight> GetInternalFlights(string dateTime);
         ConcurrentDictionary<string, FlightPlan> GetDic();
         FlightPlan GetFlightPlanById(string id);
-        void AddServer(Server s);
-        ConcurrentDictionary<string, string> GetServers();
-        void DeleteServer(string id);
+        bool AddServer(Server s);
+        List<Server> GetServers();
+        bool DeleteServer(string id);
     }
 }

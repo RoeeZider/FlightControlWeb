@@ -23,7 +23,7 @@ namespace FlightControlWeb.Controllers
 
         // GET: api/servers
         [HttpGet]
-        public ConcurrentDictionary<string, string> Get()
+        public List<Server> Get()
         {
             return flightManager.GetServers();
         }
@@ -38,9 +38,11 @@ namespace FlightControlWeb.Controllers
 
         // POST: api/servers
         [HttpPost]
-        public void Post([FromBody] Server s)
+        public ActionResult Post([FromBody] Server s)
         {
-            flightManager.AddServer(s);
+            bool ok=flightManager.AddServer(s);
+            if (!ok) return BadRequest("server isnt valid");
+            return Ok(s);
         }
         /*
         // PUT: api/servers/5
@@ -52,9 +54,12 @@ namespace FlightControlWeb.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
-        public void Delete(string id)
+        public ActionResult Delete(string id)
         {
-            flightManager.DeleteServer(id);
+
+            bool ok = flightManager.DeleteServer(id);
+            if (!ok) return NotFound(id);
+            return Ok(id);
         }
     }
 }

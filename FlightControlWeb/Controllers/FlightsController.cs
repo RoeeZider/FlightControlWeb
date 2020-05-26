@@ -23,27 +23,28 @@ namespace FlightControlWeb.Controllers
         // DELETE: api/Flight/id
         [HttpDelete("{id}")]
         //[Url=api/Flight/id]
-        public void Delete(string id)
+        public ActionResult Delete(string id)
         {
-            flightManager.DeleteFlight(id);
+
+            //fix this?
+            bool ok=flightManager.DeleteFlight(id);
+            if (!ok) return NotFound(id);
+            return Ok(id);
         }
 
         [HttpGet]
-        public IEnumerable<Flight> GetAllFlights()
+        public async Task<ActionResult<List<Flight>>> GetAllFlights()
         {
-            List<Flight> flights = new List<Flight>();
+            List<Flight> flights =  new List<Flight>();
             List<Flight> temp = new List<Flight>();
             flights = flightManager.GetInternalFlights(Request.Query["relative_to"]);
             if (!Request.Query.ContainsKey("sync_all"))
             {
-                return flights;
+                return Ok( flights);
             }
-            temp= flightManager.GetAllFlights(Request.Query["relative_to"]);
-            foreach(Flight f in temp)
-            {
-                flights.Add(f);
-            }
-            return flights;
+            var external = await flightManager.GetAllFlights(Request.Query["relative_to"]);
+            flights.AddRange(external);
+            return Ok(flights);
         }
 
         /*

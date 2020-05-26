@@ -31,12 +31,13 @@ namespace FlightControlWeb.Models
             flights.Add(f);
         }
 
-        public void DeleteFlight(string id)
+        public bool DeleteFlight(string id)
         {
             FlightPlan f = flightPlan[id];
             if (f == null)
-                throw new Exception("flight not found");
+                return false; ;
             flightPlan.TryRemove(id,out f);
+            return true;
         }
 
         public IEnumerable<Flight> GetAllFlights()
@@ -50,30 +51,54 @@ namespace FlightControlWeb.Models
             return flightPlan;
         }
 
-        public ConcurrentDictionary<string, string> GetServers()
+        public List<Server> GetServers()
         {
-            return servers;
+            List<Server> serversList = new List<Server>();
+            foreach(KeyValuePair<string, string> s in servers)
+            {
+                Server _server = new Server(s.Key,s.Value);
+                serversList.Add(_server);
+            }
+            return serversList;
         }
 
-        public void DeleteServer(string id)
+        public bool DeleteServer(string id)
         {
             string s = servers[id];
             if (s == null)
-                throw new Exception("flight not found");
+                return false;
             servers.TryRemove(id, out s);
+            return true;
         }
 
 
 
-        public void AddFlightt2(FlightPlan f)
+        public bool AddFlighttPlan(FlightPlan f)
         {
+
+            //cheak valid
+
+            if(f.Company_name == null )
+            {
+                return false;
+            }
+            //|| f.Passengers.ToString() == null
+            //and for any location / segments
+            if (f.segments==null || f.initialLocation == null )
+            {
+                return false;
+            }
+
             string id = Get_flight_id(f.Company_name);
             flightPlan[id] = f;
+            return true;
         }
 
-        public void AddServer(Server s)
+        public bool AddServer(Server s)
         {
+            if (s.ServerId == null || s.ServerURL == null) return false;
             servers[s.ServerId] = s.ServerURL;
+            return true;
         }
 
         /*
@@ -130,17 +155,36 @@ namespace FlightControlWeb.Models
             return flightPlan[id];
         }
 
+        public async Task<FlightPlan> GetFlightPlanByServer(string id)
+        {
+            HttpClient client = new HttpClient();
+            foreach (KeyValuePair<string, string> s  in servers)
+            {
+                HttpResponseMessage respone = await client.GetAsync(s.Value + "/api/FlightPlan/" + id);
+                if (respone.IsSuccessStatusCode)
+                {
+                    var content = respone.Content;
+                    string data = await content.ReadAsStringAsync();
+                    FlightPlan fp = JsonConvert.DeserializeObject<FlightPlan>(data);
+                    return fp;
+                }
+            }
+
+            return null;
+
+        }
 
 
-        List<Flight> IFlightManager.GetAllFlights(string dateTime)
+
+        public async Task<List<Flight>>  GetAllFlights(string dateTime)
         {
             List<Flight> flights = new List<Flight>();
             DateTime time = ConvertToDateTime(dateTime);
             
             foreach(KeyValuePair<string,string> s in servers)
             {
-                List<Flight> temp = GetExternalFlight(s.Value, dateTime);
-                flights.AddRange(temp);
+                List<Flight> temp =  await GetExternalFlight(s.Value, dateTime);
+                if(temp.Count != 0) flights.AddRange(temp);
             }
 
             return flights;
@@ -151,18 +195,21 @@ namespace FlightControlWeb.Models
            
         }
 
-        List<Flight> GetExternalFlight(string URL,string dateTime)
+        public async Task<List<Flight>> GetExternalFlight(string URL,string dateTime)
         {
             List<Flight> exteranlFlight = new List<Flight>();
-            string url = "https://" + URL + "/api/Flights?relative_to=" + dateTime;
+            string url = "https://" + URL + "/api/Flights?relative_to=" + dateTime.ToString();
             HttpClient client = new HttpClient();
-            var respone = client.GetStringAsync(url);
+           
+                var respone = await client.GetStringAsync(url);
+          
             dynamic json = JsonConvert.DeserializeObject<List<Flight>>(respone.ToString());
             foreach(Flight f in json)
             {
+                f.Is_external = true;
                 exteranlFlight.Add(f);
             }
-            return exteranlFlight;
+            return  exteranlFlight;
         }
 
          List<Flight> IFlightManager.GetInternalFlights(string dateTime)
@@ -261,6 +308,8 @@ namespace FlightControlWeb.Models
                 throw new Exception("Unable to parse");
             }
         }
+
+        
     }
     
 }
