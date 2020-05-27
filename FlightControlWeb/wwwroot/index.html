@@ -1,27 +1,98 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <meta charset="utf-8" />
+    <title>my app</title>
     <style>
+        div.a {
+            position: relative;
+            width: 1000px;
+            height: 550px;
+        }
+
+        div.drop_zone {
+            position: absolute;
+            bottom: 0px;
+        }
+
         #map {
-            height: 400px;
-            width: 100%;
+            position: absolute;
+            height: 350px;
+            right: 0px;
+            width: 700px;
+        }
+
+        div.column {
+            position: absolute;
+            right: 0;
+            height: auto;
+            width: 400px;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
-    <h3>My Google Maps Demo</h3>
-    <div id="map"></div>
-    <script>
-        function initMap() {
-			var uluru = { lat: 31.8830, lng: 35.2642  };
-            var map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 8,
-                center: uluru
-            });
-        }
-    </script>
-    <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTQHIYjwfjAoHyk5H59XrG3B7isO7sWjU&callback=initMap">
-    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <div class="a">
+        <h3>Map of the World</h3>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-7">
+                    <!-- <div id="map"></div> -->
+                    <div id="map"></div>
+                    <script>
+                        function initMap() {
+                            var uluru = { lat: -25.363, lng: 131.044 };
+                            var map = new google.maps.Map(document.getElementById('map'), {
+                                zoom: 4,
+                                center: uluru
+                            });
+                        }
+                    </script>
+                    <script async defer
+                            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTQHIYjwfjAoHyk5H59XrG3B7isO7sWjU&callback=initMap">
+                    </script>
+                </div>
+            </div>
+
+
+            <div class="column" style="background-color:#bbb;">
+                <h2>My Flights</h2>
+                <table id="flight_list">
+                    <tr>
+                        <th>Flight Id</th>
+                        <th>Company Name</th>
+                        <th>Delete</th>
+                    </tr>
+                    <!--enter flights by server-->
+                </table>
+                <script src="javascript/server_network.js"></script>
+            </div>
+
+
+
+
+            <div class="drop_zone" id="drop_zone">
+                <form class="my-form" method="post" action="/">
+                    <h3>upload file</h3>
+                    <label class="button" for="fileItem">select files</label>
+                    <input type="file" id="fileItem" accept="/application/json">
+                    <!-- READ FILE BUTTON -->
+                    <input type="button" id="submition" value="submit" onclick="readFiles()" />
+                </form>
+            </div>
+
+            <script src="javascript/UI.js"></script>
+        </div>
+    </div>
+    <script src="javascript/jquary.js"></script>
+    <script src="javascript/bootstrap.min.js"></script>
+
+    <script src="UI.js"></script>
+
+
+
 </body>
 </html>
