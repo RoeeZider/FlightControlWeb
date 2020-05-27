@@ -27,21 +27,20 @@ $(document).ready(function () {
     getFlights();
     setInterval(function () {
         getFlights();
-    }, 3000);
+    }, 30000);
 });
 
 function getFlights() {
     let d = new Date(Date().toString('en-US', { timeZone: "Etc/GMT-0" }));
-    let url = "/api/Flights?relative_to=" + d.toISOString();
+    let date = d.toISOString().replace(".000", "");
+    let url = "/api/Flights?relative_to=" +date ;
 
     $.ajax({
         type: "GET",
         url: url,
         datatype: 'json',
         success: updateFlights,
-        error: function () {
-            alert("Error getFlights");
-        }
+       
     });
 }
 
