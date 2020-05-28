@@ -35,7 +35,9 @@ namespace FlightControlWeb.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Flight>>> GetAllFlights()
         {
+           
             List<Flight> flights =  new List<Flight>();
+
             List<Flight> temp = new List<Flight>();
             flights = flightManager.GetInternalFlights(Request.Query["relative_to"]);
             if (!Request.Query.ContainsKey("sync_all"))

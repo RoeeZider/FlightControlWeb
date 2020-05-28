@@ -18,6 +18,15 @@ namespace FlightControlWeb.Models
         [JsonProperty("date_time")]
         [JsonPropertyName("date_time")]
         public string Date_time { get; set; }
+        /*
+        public InitialLocation(double longitude, double latitude, string time)
+        {
+            Longitude = longitude;
+            Latitude = latitude;
+            Date_time = time;
+
+        }
+        */
     }
 
 }

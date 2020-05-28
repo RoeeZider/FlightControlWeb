@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace FlightControlWeb.Models
 {
@@ -23,8 +24,9 @@ namespace FlightControlWeb.Models
             new Flight{ Flight_id="2", Longitude=125.000, Latitude=10.000, CompanyName="HarelAir",Is_external=true,Passengers=400,Date_time="20:54"},
         };
 
-        public static ConcurrentDictionary<string, FlightPlan> flightPlan = new ConcurrentDictionary<string, FlightPlan>();
-        public static ConcurrentDictionary<string, string> servers = new ConcurrentDictionary<string, string>();
+        public static ConcurrentDictionary<string, FlightPlan> flightPlan = new ConcurrentDictionary<string, FlightPlan>() {};
+        public static ConcurrentDictionary<string, string> servers = new ConcurrentDictionary<string, string>()
+            ;
 
         public void AddFlightt(Flight f)
         {
@@ -312,7 +314,15 @@ namespace FlightControlWeb.Models
             }
         }
 
-        
+        public string GetID()
+        {
+            string id = "";
+            foreach (KeyValuePair<string, FlightPlan> fp in flightPlan)
+            {
+                id= fp.Key;
+            }
+            return id;
+        }
     }
     
 }

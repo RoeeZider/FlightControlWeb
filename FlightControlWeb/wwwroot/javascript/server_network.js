@@ -27,7 +27,7 @@ $(document).ready(function () {
     getFlights();
     setInterval(function () {
         getFlights();
-    }, 3000);
+    }, 60000);
 });
 
 function getFlights() {
