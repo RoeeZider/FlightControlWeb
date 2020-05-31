@@ -6,87 +6,102 @@
     <meta charset="utf-8" />
     <title>my app</title>
     <style>
-        div.a {
-            position: relative;
-            width: 1000px;
-            height: 550px;
-        }
+        html,body{height:100%;}
+       .container-fluid {
+    height: 100%;
+    width:100%;
+    min-height:100%;
+    max-width: unset;
+    max-height:unset;
+    
+}
+  
 
-        div.drop_zone {
-            position: absolute;
-            bottom: 0px;
-        }
-
-        #map {
-            position: absolute;
-            height: 350px;
-            right: 0px;
-            width: 700px;
-        }
-
-        div.column {
-            position: absolute;
-            right: 0;
-            height: auto;
-            width: 400px;
-            padding: 10px;
-        }
+       .highlight { background-color:darkred; }
     </style>
 </head>
 <body>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <div class="a">
-        <h3>Map of the World</h3>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-7">
-                    <!-- <div id="map"></div> -->
-                    <div id="map"></div>
-                    <script>
-                        function initMap() {
-                            var uluru = { lat: -25.363, lng: 131.044 };
-                            var map = new google.maps.Map(document.getElementById('map'), {
-                                zoom: 4,
-                                center: uluru
-                            });
-                        }
-                    </script>
-                    <script async defer
-                            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTQHIYjwfjAoHyk5H59XrG3B7isO7sWjU&callback=initMap">
-                    </script>
+    <div class="container-fluid">
+        <div class="row h-100">
+            <div class="section col-md-8">
+                <div class="row h-75 w-100">
+                    <div class="map col-lg-12" id="map">
+                        <h3>Map of the World</h3>
+
+                        <script>
+                            function initMap() {
+                                var uluru = { lat: -25.363, lng: 131.044 };
+                                var map = new google.maps.Map(document.getElementById('map'), {
+                                    zoom: 4,
+                                    center: uluru
+                                });
+                            }
+                        </script>
+                        <script async defer
+                                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTQHIYjwfjAoHyk5H59XrG3B7isO7sWjU&callback=initMap">
+                        </script>
+                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="container p-3 my-3 bg-dark text-white">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <span class="badge badge-default">Company name:</span> <span class="badge badge-default">Start point:</span> <span class="badge badge-default">Takeoff time:</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="badge badge-primary" id="details_company"></span> <span class="badge badge-secondary" id="details_start_point"></span> <span class="badge badge-danger" id="details_takeoff"></span>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="badge badge-default">Passengers:</span> <span class="badge badge-default">End point:</span> <span class="badge badge-default">Landing:</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="badge badge-primary" id="details_passengers"></span> <span class="badge badge-secondary" id="details_end_point"></span> <span class="badge badge-danger" id="details_landing"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div class="col-md-4">
+                <div class="row h-75">
+                    <div class="col-md-12" style="background-color:#bbb;" id="flightsList">
+                        <h2>My Flights</h2>
+                        <table id="flight_list">
+                            <tr>
+          
+                                <th>Flight Id</th>
+                                <th>Company Name</th>
+                                <th>Delete</th>
+                            </tr>
+                            <!--enter flights by server-->
+                        </table>
+                        <script src="javascript/server_network.js"></script>
+                    </div>
+                </div>
 
+                <div class="row">
+                    <div class="col-md-12" id="drop_zone">
+                        <form class="my-form" method="post" action="/">
+                            <h3>upload file</h3>
+                            <label class="button" for="fileItem">select files</label>
+                            <input type="file" id="fileItem" accept="/application/json">
+                            <!-- READ FILE BUTTON -->
+                            <input type="button" id="submition" value="submit" onclick="readFiles()" />
+                        </form>
+                    </div>
+                </div>
 
-            <div class="column" style="background-color:#bbb;">
-                <h2>My Flights</h2>
-                <table id="flight_list">
-                    <tr>
-                        <th>Flight Id</th>
-                        <th>Company Name</th>
-                        <th>Delete</th>
-                    </tr>
-                    <!--enter flights by server-->
-                </table>
-                <script src="javascript/server_network.js"></script>
             </div>
-
-
-
-
-            <div class="drop_zone" id="drop_zone">
-                <form class="my-form" method="post" action="/">
-                    <h3>upload file</h3>
-                    <label class="button" for="fileItem">select files</label>
-                    <input type="file" id="fileItem" accept="/application/json">
-                    <!-- READ FILE BUTTON -->
-                    <input type="button" id="submition" value="submit" onclick="readFiles()" />
-                </form>
-            </div>
-
-            <script src="javascript/UI.js"></script>
         </div>
     </div>
+
+
+
+        <script src="javascript/UI.js"></script>
+   
     <script src="javascript/jquary.js"></script>
     <script src="javascript/bootstrap.min.js"></script>
 

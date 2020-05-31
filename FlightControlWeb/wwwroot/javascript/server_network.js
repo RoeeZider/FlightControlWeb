@@ -13,22 +13,28 @@ function postFlight(jsonString) {
 }
 
 function delete_flight(id) {
-    let xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-        if ((response.status >= 300 || response.status < 200) && response.status !== 404) {
-            alert("Error in server!\n");
-        }
-    };
-    xhttp.open("DELETE", "/api/Flights/" + id, true);
-    xhttp.send();
+    const url = "/api/Flights/" + id;
+    $.ajax({
+        type: "DELETE",
+        url: url,
+        success:
+            function () {
+                rowToRemove.remove();
+                alert("flight " + flightId + " was deleted successfuly");
+
+            },
+        error: function (xhr) { alert("Request Error!\nURL: " + url + "\nError: " + xhr.status + " - " + xhr.title); },
+    });
 }
+
 
 $(document).ready(function () {
     getFlights();
     setInterval(function () {
         getFlights();
-    }, 30000);
+    }, 10000);
 });
+
 
 function getFlights() {
     let d = new Date(Date().toString('en-US', { timeZone: "Etc/GMT-0" }));
@@ -40,7 +46,7 @@ function getFlights() {
         url: url,
         datatype: 'json',
         success: updateFlights,
-       
+        error: function (xhr) { alert("Request Error!\nURL: " + url + "\nError: " + xhr.status + " - " + xhr.title); },
     });
 }
 
