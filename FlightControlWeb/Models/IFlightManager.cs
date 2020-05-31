@@ -20,9 +20,12 @@ namespace FlightControlWeb.Models
 
         List<Flight> GetInternalFlights(string dateTime);
         ConcurrentDictionary<string, FlightPlan> GetDic();
-        FlightPlan GetFlightPlanById(string id);
+        public FlightPlan GetFlightPlanById(string id);
+        
         bool AddServer(Server s);
         List<Server> GetServers();
         bool DeleteServer(string id);
+
+        string GetID();
     }
 }
