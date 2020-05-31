@@ -1,4 +1,16 @@
-﻿function updateFlights(flights) {
+﻿let markersColor = [];
+let markers_on_map = [];
+let map
+
+function initMap() {
+    var uluru = { lat: 30.00, lng: 30.00 };
+    map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 4,
+        center: uluru
+    });
+}
+
+function updateFlights(flights) {
     let table = document.getElementById('flight_list');
     for (const flight of flights) {
         if (flight == null) {
@@ -16,22 +28,71 @@
                 cols += '<td> <input type="button" class="ibtnDel btn btn-md btn-danger " value="X" id="' + "x" + flight.flight_id + '"></td >';
 
             }
-  
             newRow.append(cols);
             $('#flight_list > tbody:last-child').append(newRow);
-         
+           
+            marker = new google.maps.Marker({
+                map: map,
+                position: { lat: flight.latitude, lng: flight.longitude },
+                id: flight.flight_id,
+                icon: {
+                    url: "https://www.google.com/mapfiles/marker_green.png"
+                }
+            });
+            google.maps.event.addListener(marker, 'click', function () {
+                showFlight(flight.flight_id);
+                $('tr').removeClass('highlight');
+                $("#" + flight.flight_id).addClass('highlight');
+                 
+                for (var i = 0; i < markers_on_map.length; i++) {
+                    markers_on_map[i].setIcon("https://www.google.com/mapfiles/marker_green.png");
+                }
+                this.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+            });
+            markers_on_map.push(marker);
+
         }
         $("#x"+flight.flight_id).click(function () {
             $("#"+flight.flight_id).remove();
             deleteFlight(flight.flight_id);
+            let i = markers_on_map.findIndex(x => x.get("id") === flight.flight_id);
+          //  markers_on_map = jQuery.grep(markers_on_map, function (value) {
+            //    return value != c_marker;
+            //});
+            markers_on_map[i].setMap(null);
+            markers_on_map.splice(i, 1);
+
+            showMarkers(map);
+
         });
         $('tr').click(function () {
             showFlight(flight.flight_id);
             $('tr').removeClass('highlight');
             $(this).addClass('highlight');
-
+            for (var i = 0; i < markers_on_map.length; i++) {
+                markers_on_map[i].setIcon("https://www.google.com/mapfiles/marker_green.png");
+            }
+            c_marker = markers_on_map.find(x => x.get("id") === flight.flight_id);
+            let u = c_marker.get("id");
+            c_marker.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png")
+            c_marker = null;
+            showMarkers(map);
+         
         });
+      
+       // var myLatLng = new google.maps.Map.LatLng(flight.latitude, flight.longitude);
+     
     };
+
+}
+function showMarkers(map) {
+    var bounds = new google.maps.LatLngBounds();
+    if (markers_on_map) {
+        for (var i = 0; i < markerArray.length; i++) {
+            bounds.extend(markerArray[i].getPosition())
+            markerArray[i].setMap(map);
+        };
+    }
 }
 function showFlight(idFlight) {
     const url = "/api/FlightPlan/" + idFlight;
@@ -56,6 +117,8 @@ function showFlight(idFlight) {
                 $("#details_end_point").html(end_time.toISOString().replace(".000Z",""));
                 $("#details_passengers").html(flightPlan.passengers);
                 $("#details_company").html(flightPlan.company_name);
+                
+
             },
         });
     
