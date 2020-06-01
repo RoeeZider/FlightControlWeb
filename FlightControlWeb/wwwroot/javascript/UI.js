@@ -4,7 +4,8 @@ let map
 let chosen_marker;
 let chosen_flight;
 let flightPlanCoordinates = [];
-var flightPath
+let flightPath
+let flightPathId
 
 function initMap() {
     var uluru = { lat: 30.00, lng: 30.00 };
@@ -14,22 +15,28 @@ function initMap() {
     });
 }
 
+
 function reset() {
-    c_marker = markers_on_map.find(x => x.get("id") === chosen_marker);
-    c_marker.setIcon("https://www.google.com/mapfiles/marker_green.png");
-    c_marker.setMap(map);
-    $('tr').removeClass('highlight');
-    chosen_marker = null;
-    chosen_flight - null;
-    clearDetails();
-    flightPlanCoordinates = [];
+    if (markers_on_map.length > 0) {
+        c_marker = markers_on_map.find(x => x.get("id") === chosen_marker);
+        c_marker.setIcon("https://www.google.com/mapfiles/marker_green.png");
+        c_marker.setMap(map);
+        $('tr').removeClass('highlight');
+        chosen_marker = null;
+        chosen_flight = null;
+
+        clearDetails();
+        flightPlanCoordinates = [];
+        flightPath.setMap(null);
+    }
 }
 
 
 
 
+
 function updateFlights(flights) {
-  //  restart every 10 sec
+  //  restart every x sec
     $("#tblBody").empty();
     showMarkers(null);
     markers_on_map = [];
@@ -50,8 +57,8 @@ function updateFlights(flights) {
         cols += '<td informative>' + flight.companyName + '</td>';
         if (!flight.is_external) {
             cols += '<td> <input type="button" class="ibtnDel btn btn-md btn-danger " value="X" id="' + "x" + flight.flight_id + '"></td >';
-
         }
+        
         newRow.append(cols);
         $('#flight_list > tbody:last-child').append(newRow);
         //make it highlight if it the chosen one.
@@ -72,6 +79,7 @@ function updateFlights(flights) {
             marker.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
         //add event to marker
         google.maps.event.addListener(marker, 'click', function () {
+            event.stopPropagation();
             chosen_marker = flight.flight_id;
             chosen_flight = flight.flight_id;
             showFlight(flight.flight_id);
@@ -87,21 +95,30 @@ function updateFlights(flights) {
 
      //   }
         //add event to delete button
-        $("#x"+flight.flight_id).click(function () {
-            $("#"+flight.flight_id).remove();
+        $("#x" + flight.flight_id).click(function (e) {
+            e.stopPropagation();
+            //remove row
+            $("#" + flight.flight_id).remove();
+            //send to server
             deleteFlight(flight.flight_id);
+            //delete from markers array
             let i = markers_on_map.findIndex(x => x.get("id") === flight.flight_id);
-          //  markers_on_map = jQuery.grep(markers_on_map, function (value) {
-            //    return value != c_marker;
-            //});
             markers_on_map[i].setMap(null);
             markers_on_map.splice(i, 1);
-
             showMarkers(map);
+            //delete polyline
+            if (flightPathId == flight.flight_id) {
+                flightPath.setMap(null);
+                flightPlanCoordinates = [];
+            }
+            clearDetails();
+
+
 
         });
         //add event to row click
-        $("#"+flight.flight_id).click(function () {
+        $("#" + flight.flight_id).click(function (e) {
+            e.stopPropagation();
             chosen_flight = flight.flight_id;
             chosen_marker = flight.flight_id;
       
@@ -156,7 +173,7 @@ function showFlight(idFlight) {
                 $("#details_end_point").html(end_time.toISOString().replace(".000Z",""));
                 $("#details_passengers").html(flightPlan.passengers);
                 $("#details_company").html(flightPlan.company_name);
-                polyline(flightPlan.segments);
+                polyline(flightPlan.segments, idFlight);
 
             },
         });
@@ -178,7 +195,7 @@ function clearDetails() {
     $("#details_company").empty();
 }
 
-function polyline(segments) {
+function polyline(segments,id) {
     if (flightPath != null)
         flightPath.setMap(null);
     flightPlanCoordinates = [];
@@ -196,6 +213,6 @@ function polyline(segments) {
         strokeOpacity: 1.0,
         strokeWeight: 2
     });
-
+    flightPathId = id;
     flightPath.setMap(map);
 }

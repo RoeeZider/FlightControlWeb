@@ -12,22 +12,25 @@
     width:100%;
     min-height:100%;
     max-width: unset;
+    min-width:600px;
     max-height:unset;
+    position:fixed;
     
 }
-  
 
+ 
        .highlight { background-color:darkred; }
     </style>
 </head>
 <body>
     <script>
 //document.addEventListener(`click`, reset());
+    
     </script>
 
-    <div class="container-fluid" onclick="myfunction()"> 
+    <div class="container-fluid" onclick="reset();"> 
   
-        <div class="row h-100">
+        <div class="row h-100" >
             <div class="section col-md-8">
                 <div class="row h-75 w-100">
                     <div class="map col-lg-12" id="map">
@@ -45,15 +48,16 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="container p-3 my-3 bg-dark text-white">
+                            Flight Details:
                             <div class="row">
                                 <div class="col-md-3">
-                                    <span class="badge badge-default">Company name:</span> <span class="badge badge-default">Start point:</span> <span class="badge badge-default">Takeoff time:</span>
+                                    <span class="badge badge-default">Company name:</span> <span class="badge badge-default">Takeoff time:</span> <span class="badge badge-default">Start point:</span>
                                 </div>
                                 <div class="col-md-3">
                                     <span class="badge badge-primary" id="details_company"></span> <span class="badge badge-secondary" id="details_start_point"></span> <span class="badge badge-danger" id="details_takeoff"></span>
                                 </div>
                                 <div class="col-md-3">
-                                    <span class="badge badge-default">Passengers:</span> <span class="badge badge-default">End point:</span> <span class="badge badge-default">Landing:</span>
+                                    <span class="badge badge-default">Passengers:</span> <span class="badge badge-default">Landing:</span> <span class="badge badge-default">End point:</span>
                                 </div>
                                 <div class="col-md-3">
                                     <span class="badge badge-primary" id="details_passengers"></span> <span class="badge badge-secondary" id="details_end_point"></span> <span class="badge badge-danger" id="details_landing"></span>
@@ -67,6 +71,7 @@
                 <div class="row h-75">
                     <div class="col-md-12" style="background-color:#bbb;" id="flightsList">
                         <h2>My Flights</h2>
+                        <button onclick="reset()">reset</button>
                         <table id="flight_list">
                             <thead>
                             <tr>
