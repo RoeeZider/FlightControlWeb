@@ -21,7 +21,12 @@
     </style>
 </head>
 <body>
-    <div class="container-fluid">
+    <script>
+//document.addEventListener(`click`, reset());
+    </script>
+
+    <div class="container-fluid" onclick="myfunction()"> 
+  
         <div class="row h-100">
             <div class="section col-md-8">
                 <div class="row h-75 w-100">
@@ -63,12 +68,15 @@
                     <div class="col-md-12" style="background-color:#bbb;" id="flightsList">
                         <h2>My Flights</h2>
                         <table id="flight_list">
+                            <thead>
                             <tr>
-          
                                 <th>Flight Id</th>
                                 <th>Company Name</th>
                                 <th>Delete</th>
                             </tr>
+                            </thead>
+                            <tbody id="tblBody">
+                            </tbody>
                             <!--enter flights by server-->
                         </table>
                         <script src="javascript/server_network.js"></script>

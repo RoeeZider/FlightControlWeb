@@ -39,7 +39,7 @@ $(document).ready(function () {
 function getFlights() {
     let d = new Date(Date().toString('en-US', { timeZone: "Etc/GMT-0" }));
     let date = d.toISOString().replace(".000", "");
-    let url = "/api/Flights?relative_to=" +date ;
+    let url = "/api/Flights?relative_to=" + date + "&sync_all" ;
 
     $.ajax({
         type: "GET",

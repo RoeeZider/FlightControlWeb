@@ -1,6 +1,8 @@
 ﻿let markersColor = [];
 let markers_on_map = [];
 let map
+let chosen_marker;
+let chosen_flight;
 
 function initMap() {
     var uluru = { lat: 30.00, lng: 30.00 };
@@ -10,48 +12,80 @@ function initMap() {
     });
 }
 
+function reset() {
+    c_marker = markers_on_map.find(x => x.get("id") === chosen_marker);
+    c_marker.setIcon("https://www.google.com/mapfiles/marker_green.png");
+    c_marker.setMap(map);
+    $('tr').removeClass('highlight');
+    chosen_marker = null;
+    chosen_flight - null;
+    clearDetails();
+}
+
+
+
+
+
+
 function updateFlights(flights) {
+  //  restart every 10 sec
+    $("#tblBody").empty();
+    showMarkers(null);
+    markers_on_map = [];
+  
+    // add to flight list
     let table = document.getElementById('flight_list');
     for (const flight of flights) {
         if (flight == null) {
             continue;
         }
-        if (table.rows[flight.flight_id]) {
-            continue;
-        } else {
+       // if (table.rows[flight.flight_id]) {
+         //   continue;
+        //} else {
           
-            let newRow = $("<tr id=" + flight.flight_id + ">");
-            let cols = "";
-            cols += '<td informative>' + flight.flight_id + '</td>';
-            cols += '<td informative>' + flight.companyName + '</td>';
-            if (!flight.is_external) {
-                cols += '<td> <input type="button" class="ibtnDel btn btn-md btn-danger " value="X" id="' + "x" + flight.flight_id + '"></td >';
-
-            }
-            newRow.append(cols);
-            $('#flight_list > tbody:last-child').append(newRow);
-           
-            marker = new google.maps.Marker({
-                map: map,
-                position: { lat: flight.latitude, lng: flight.longitude },
-                id: flight.flight_id,
-                icon: {
-                    url: "https://www.google.com/mapfiles/marker_green.png"
-                }
-            });
-            google.maps.event.addListener(marker, 'click', function () {
-                showFlight(flight.flight_id);
-                $('tr').removeClass('highlight');
-                $("#" + flight.flight_id).addClass('highlight');
-                 
-                for (var i = 0; i < markers_on_map.length; i++) {
-                    markers_on_map[i].setIcon("https://www.google.com/mapfiles/marker_green.png");
-                }
-                this.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
-            });
-            markers_on_map.push(marker);
+        let newRow = $("<tr id=" + flight.flight_id + ">");
+        let cols = "";
+        cols += '<td informative>' + flight.flight_id + '</td>';
+        cols += '<td informative>' + flight.companyName + '</td>';
+        if (!flight.is_external) {
+            cols += '<td> <input type="button" class="ibtnDel btn btn-md btn-danger " value="X" id="' + "x" + flight.flight_id + '"></td >';
 
         }
+        newRow.append(cols);
+        $('#flight_list > tbody:last-child').append(newRow);
+        //make it highlight if it the chosen one.
+        if (flight.flight_id == chosen_flight)
+            $("#" + flight.flight_id).addClass('highlight');
+
+        // add marker
+        marker = new google.maps.Marker({
+           map: map,
+           position: { lat: flight.latitude, lng: flight.longitude },
+           id: flight.flight_id,
+           icon: {
+              url: "https://www.google.com/mapfiles/marker_green.png"
+           }
+        });
+        //if it is the chosen marker change color
+        if (marker.get("id") == chosen_marker)
+            marker.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+        //add event to marker
+        google.maps.event.addListener(marker, 'click', function () {
+            chosen_marker = flight.flight_id;
+            chosen_flight = flight.flight_id;
+            showFlight(flight.flight_id);
+            $('tr').removeClass('highlight');
+            $("#" + flight.flight_id).addClass('highlight');
+            for (var i = 0; i < markers_on_map.length; i++) {
+                 if (markers_on_map[i] != chosen_marker)
+                       markers_on_map[i].setIcon("https://www.google.com/mapfiles/marker_green.png");
+            }
+            this.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+        });
+        markers_on_map.push(marker);
+
+     //   }
+        //add event to delete button
         $("#x"+flight.flight_id).click(function () {
             $("#"+flight.flight_id).remove();
             deleteFlight(flight.flight_id);
@@ -65,7 +99,11 @@ function updateFlights(flights) {
             showMarkers(map);
 
         });
-        $('tr').click(function () {
+        //add event to row click
+        $("#"+flight.flight_id).click(function () {
+            chosen_flight = flight.flight_id;
+            chosen_marker = flight.flight_id;
+      
             showFlight(flight.flight_id);
             $('tr').removeClass('highlight');
             $(this).addClass('highlight');
@@ -75,7 +113,7 @@ function updateFlights(flights) {
             c_marker = markers_on_map.find(x => x.get("id") === flight.flight_id);
             let u = c_marker.get("id");
             c_marker.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png")
-            c_marker = null;
+     
             showMarkers(map);
          
         });
@@ -86,11 +124,11 @@ function updateFlights(flights) {
 
 }
 function showMarkers(map) {
-    var bounds = new google.maps.LatLngBounds();
+    //var bounds = new google.maps.LatLngBounds();
     if (markers_on_map) {
-        for (var i = 0; i < markerArray.length; i++) {
-            bounds.extend(markerArray[i].getPosition())
-            markerArray[i].setMap(map);
+        for (var i = 0; i < markers_on_map.length; i++) {
+           // bounds.extend(markerArray[i].getPosition())
+            markers_on_map[i].setMap(map);
         };
     }
 }
@@ -117,21 +155,40 @@ function showFlight(idFlight) {
                 $("#details_end_point").html(end_time.toISOString().replace(".000Z",""));
                 $("#details_passengers").html(flightPlan.passengers);
                 $("#details_company").html(flightPlan.company_name);
-                
+               // polyline(flightPlan.segments);
 
             },
         });
     
-    // when click on row of flight - change color.
 
-
-    // get plane from map and change its color.
-
-
-
-    // TODO: show flight path
 }
 function deleteFlight(flightId) {
   //  $("#flight_list") tr#$(flightId)').remove();
     delete_flight(flightId);
+}
+
+function clearDetails() {
+    $("#flight_info_id").empty();
+    $("#details_takeoff").empty();
+    $("#details_landing").empty();
+    $("#details_start_point").empty();
+    $("#details_end_point").empty();
+    $("#details_passengers").empty();
+    $("#details_company").empty();
+}
+
+function polyline(segments) {
+    var flightPlanCoordinates = [];
+    for (let segment in segments) {
+        coordinates.push({ lat: segment.latitude, lng: segment.longitude });
+    }
+    var flightPath = new google.maps.Polyline({
+        path: flightPlanCoordinates,
+        geodesic: true,
+        strokeColor: '#FF0000',
+        strokeOpacity: 1.0,
+        strokeWeight: 2
+    });
+
+    flightPath.setMap(map);
 }
