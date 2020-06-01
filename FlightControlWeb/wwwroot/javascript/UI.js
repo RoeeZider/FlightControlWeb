@@ -16,12 +16,13 @@ function initMap() {
 }
 
 
+    
 function reset() {
     if (markers_on_map.length > 0) {
         c_marker = markers_on_map.find(x => x.get("id") === chosen_marker);
         c_marker.setIcon("https://www.google.com/mapfiles/marker_green.png");
         c_marker.setMap(map);
-        $('tr').removeClass('highlight');
+        $('tr').removeClass('highlightred');
         chosen_marker = null;
         chosen_flight = null;
 
@@ -53,17 +54,18 @@ function updateFlights(flights) {
           
         let newRow = $("<tr id=" + flight.flight_id + ">");
         let cols = "";
-        cols += '<td informative>' + flight.flight_id + '</td>';
+        cols += '<th informative scope="row">' + flight.flight_id + '</th>';
         cols += '<td informative>' + flight.companyName + '</td>';
         if (!flight.is_external) {
             cols += '<td> <input type="button" class="ibtnDel btn btn-md btn-danger " value="X" id="' + "x" + flight.flight_id + '"></td >';
         }
+        cols += '</tr >';
         
         newRow.append(cols);
         $('#flight_list > tbody:last-child').append(newRow);
         //make it highlight if it the chosen one.
         if (flight.flight_id == chosen_flight)
-            $("#" + flight.flight_id).addClass('highlight');
+            $("#" + flight.flight_id).addClass('highlightred');
 
         // add marker
         marker = new google.maps.Marker({
@@ -83,8 +85,8 @@ function updateFlights(flights) {
             chosen_marker = flight.flight_id;
             chosen_flight = flight.flight_id;
             showFlight(flight.flight_id);
-            $('tr').removeClass('highlight');
-            $("#" + flight.flight_id).addClass('highlight');
+            $('tr').removeClass('highlightred');
+            $("#" + flight.flight_id).addClass('highlightred');
             for (var i = 0; i < markers_on_map.length; i++) {
                  if (markers_on_map[i] != chosen_marker)
                        markers_on_map[i].setIcon("https://www.google.com/mapfiles/marker_green.png");
@@ -123,8 +125,8 @@ function updateFlights(flights) {
             chosen_marker = flight.flight_id;
       
             showFlight(flight.flight_id);
-            $('tr').removeClass('highlight');
-            $(this).addClass('highlight');
+            $('tr').removeClass('highlightred');
+            $(this).addClass('highlightred');
             for (var i = 0; i < markers_on_map.length; i++) {
                 markers_on_map[i].setIcon("https://www.google.com/mapfiles/marker_green.png");
             }
