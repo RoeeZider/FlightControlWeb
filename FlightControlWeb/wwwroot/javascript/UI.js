@@ -3,6 +3,8 @@ let markers_on_map = [];
 let map
 let chosen_marker;
 let chosen_flight;
+let flightPlanCoordinates = [];
+var flightPath
 
 function initMap() {
     var uluru = { lat: 30.00, lng: 30.00 };
@@ -20,9 +22,8 @@ function reset() {
     chosen_marker = null;
     chosen_flight - null;
     clearDetails();
+    flightPlanCoordinates = [];
 }
-
-
 
 
 
@@ -155,7 +156,7 @@ function showFlight(idFlight) {
                 $("#details_end_point").html(end_time.toISOString().replace(".000Z",""));
                 $("#details_passengers").html(flightPlan.passengers);
                 $("#details_company").html(flightPlan.company_name);
-               // polyline(flightPlan.segments);
+                polyline(flightPlan.segments);
 
             },
         });
@@ -178,11 +179,17 @@ function clearDetails() {
 }
 
 function polyline(segments) {
-    var flightPlanCoordinates = [];
-    for (let segment in segments) {
-        coordinates.push({ lat: segment.latitude, lng: segment.longitude });
+    if (flightPath != null)
+        flightPath.setMap(null);
+    flightPlanCoordinates = [];
+    for (let i = 0; i < segments.length;i++) {
+        let y = segments[i];
+        let p = y.latitude;
+
+        var coords = { lat: segments[i].latitude, lng: segments[i].longitude };
+        flightPlanCoordinates.push(coords);
     }
-    var flightPath = new google.maps.Polyline({
+    flightPath = new google.maps.Polyline({
         path: flightPlanCoordinates,
         geodesic: true,
         strokeColor: '#FF0000',

@@ -32,7 +32,7 @@ $(document).ready(function () {
     getFlights();
     setInterval(function () {
         getFlights();
-    }, 10000);
+    }, 5000);
 });
 
 
