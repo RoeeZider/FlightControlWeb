@@ -43,7 +43,7 @@ overflow: auto;
                 <div class="row h-75 w-100">
 
                     <div class="card-body card-body-cascade text-center" card title="map">
-                        <div class="card-header" style="font-size:24px; font-weight: bold;">
+                        <div class="card-header" style="font-size:20px; font-weight: bold;">
                            Map of the world
                         </div>
                         <div class="z-depth-1-half map-container-5" style=" height: 90%; border: 5px solid grey;" id="map">
@@ -89,37 +89,44 @@ overflow: auto;
             <div class="col-md-4">
                 <div class="row h-75">
                     <div class="col-md-12" id="flightsList">
-                        <h2>My Flights</h2>
-                        <div class="table-wrapper-scroll-y my-custom-scrollbar">
-                            <table id="flight_list" class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" >Flight Id</th>
-                                        <th scope="col">Company Name</th>
-                                        <th scope="col">Delete</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tblBody">
-                                </tbody>
-                                <!--enter flights by server-->
-                            </table>
-                            <script src="javascript/server_network.js"></script>
-                        </div>
+                       
+                       
+                            <h7 style="text-align:center;">My Flights</h7>
+                            <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                                <table id="flight_list" class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Flight Id</th>
+                                            <th scope="col">Company Name</th>
+                                            <th scope="col">Delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblBody">
+                                    </tbody>
+                                    <!--enter flights by server-->
+                                </table>
+                                <script src="javascript/server_network.js"></script>
+                            </div>
+                       
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12" id="drop_zone">
-                        <form class="my-form" method="post" action="/" onclick="event.stopPropagation();">
-                            
-                            <label class="button active" for="fileItem">upload file</label>
-                            <input type="file" id="fileItem" accept="/application/json">
-                 
-                            <input type="button" id="submition" value="submit" onclick="event.stopPropagation(); readFiles()" />
-                        </form>
+                        <div class="card bg-light text-dark" >
+                   
+                            <div class="card-body">
+                                <form class="my-form" method="post" action="/" onclick="event.stopPropagation();">
+
+                                    <label class="button active" for="fileItem">Upload file</label>
+                                    <input type="file" id="fileItem" accept="/application/json">
+
+                                    <input type="button" id="submition" value="submit" onclick="event.stopPropagation(); readFiles()" />
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
