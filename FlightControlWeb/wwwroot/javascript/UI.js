@@ -36,7 +36,7 @@ function checkTime(i) {
 function reset() {
     if (markers_on_map.length > 0) {
         c_marker = markers_on_map.find(x => x.get("id") === chosen_marker);
-        c_marker.setIcon("https://www.google.com/mapfiles/marker_green.png");
+        c_marker.setIcon("http://maps.google.com/mapfiles/kml/pal2/icon56.png");
         c_marker.setMap(map);
         $('tr').removeClass('highlightred');
         chosen_marker = null;
@@ -45,6 +45,7 @@ function reset() {
         clearDetails();
         flightPlanCoordinates = [];
         flightPath.setMap(null);
+       
     }
 }
 
@@ -89,26 +90,38 @@ function updateFlights(flights) {
            map: map,
            position: { lat: flight.latitude, lng: flight.longitude },
            id: flight.flight_id,
-           icon: {
-              url: "https://www.google.com/mapfiles/marker_green.png"
+            icon: {
+
+                url: "http://maps.google.com/mapfiles/kml/pal2/icon56.png"
            }
         });
         //if it is the chosen marker change color
         if (marker.get("id") == chosen_marker)
-            marker.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+            marker.setIcon("http://maps.google.com/mapfiles/kml/pal2/icon48.png");
+
         //add event to marker
         google.maps.event.addListener(marker, 'click', function () {
+            //display position
+            let lat = String(this.getPosition().lat()).slice(0,5);
+            let lng = String(this.getPosition().lng()).slice(0,5);
+            $("#pos").text(' / flight position: (' + lat + ', ' + lng + ')');
+            setTimeout(function () { $("#pos").text(""); }, 5000);
+            
             event.stopPropagation();
             chosen_marker = flight.flight_id;
             chosen_flight = flight.flight_id;
+            //call function that shows details and polyline
             showFlight(flight.flight_id);
+            //highlight row
             $('tr').removeClass('highlightred');
             $("#" + flight.flight_id).addClass('highlightred');
+            //reset markers color
             for (var i = 0; i < markers_on_map.length; i++) {
                  if (markers_on_map[i] != chosen_marker)
-                       markers_on_map[i].setIcon("https://www.google.com/mapfiles/marker_green.png");
+                     markers_on_map[i].setIcon("http://maps.google.com/mapfiles/kml/pal2/icon56.png");
             }
-            this.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+            //set marker chosen
+            this.setIcon("http://maps.google.com/mapfiles/kml/pal2/icon48.png");
         });
         markers_on_map.push(marker);
 
@@ -119,7 +132,7 @@ function updateFlights(flights) {
             //remove row
             $("#" + flight.flight_id).remove();
             //send to server
-            deleteFlight(flight.flight_id);
+            delete_flight(flight.flight_id);
             //delete from markers array
             let i = markers_on_map.findIndex(x => x.get("id") === flight.flight_id);
             markers_on_map[i].setMap(null);
@@ -137,45 +150,43 @@ function updateFlights(flights) {
         });
         //add event to row click
         $("#" + flight.flight_id).click(function (e) {
+            //dont acctive body click
             e.stopPropagation();
             chosen_flight = flight.flight_id;
             chosen_marker = flight.flight_id;
-      
             showFlight(flight.flight_id);
             $('tr').removeClass('highlightred');
             $(this).addClass('highlightred');
             for (var i = 0; i < markers_on_map.length; i++) {
-                markers_on_map[i].setIcon("https://www.google.com/mapfiles/marker_green.png");
+                markers_on_map[i].setIcon("http://maps.google.com/mapfiles/kml/pal2/icon56.png");
             }
             c_marker = markers_on_map.find(x => x.get("id") === flight.flight_id);
             let u = c_marker.get("id");
-            c_marker.setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png")
+            c_marker.setIcon("http://maps.google.com/mapfiles/kml/pal2/icon48.png")
      
             showMarkers(map);
-         
         });
-      
-       // var myLatLng = new google.maps.Map.LatLng(flight.latitude, flight.longitude);
      
+    
     };
+    //remove the polyline if flight not exist
     if ((flightPathId != null) && (!$("#" + flightPathId).length)) {
         flightPlanCoordinates = [];
         flightPath.setMap(null);
     }
 
 }
+//shows markers on map
 function showMarkers(map) {
-    //var bounds = new google.maps.LatLngBounds();
     if (markers_on_map) {
         for (var i = 0; i < markers_on_map.length; i++) {
-           // bounds.extend(markerArray[i].getPosition())
             markers_on_map[i].setMap(map);
         };
     }
 }
+// send GET request for flight , shows his details and calls polyline function
 function showFlight(idFlight) {
     const url = "/api/FlightPlan/" + idFlight;
-
         $.ajax({
             type: "GET",
             url: url,
@@ -186,9 +197,11 @@ function showFlight(idFlight) {
                 const end_loc = flightPlan.segments[flightPlan.segments.length - 1];
                 const start_time = new Date(start_loc.date_time);
                 const end_time = new Date(start_time);
+                //calculates end time
                 for (const segment of flightPlan.segments) {
                     end_time.setSeconds(end_time.getSeconds() + segment.timespan_seconds);
                 }
+                //shoe details
                 $("#flight_info_id").html(flightPlan.id);
                 $("#details_takeoff").html(start_loc.latitude + ", " + start_loc.longitude);
                 $("#details_landing").html(end_loc.latitude + ", " + end_loc.longitude);
@@ -196,18 +209,15 @@ function showFlight(idFlight) {
                 $("#details_end_point").html(end_time.toISOString().replace(".000Z",""));
                 $("#details_passengers").html(flightPlan.passengers);
                 $("#details_company").html(flightPlan.company_name);
+                //call function that will draw the polyline
                 polyline(flightPlan.segments, start_loc.latitude, start_loc.longitude, idFlight);
 
             },
         });
     
-
-}
-function deleteFlight(flightId) {
-  //  $("#flight_list") tr#$(flightId)').remove();
-    delete_flight(flightId);
 }
 
+// clear the flight details area
 function clearDetails() {
     $("#flight_info_id").empty();
     $("#details_takeoff").empty();
@@ -218,14 +228,15 @@ function clearDetails() {
     $("#details_company").empty();
 }
 
+// draws the polyline on map
 function polyline(segments,s_lat,s_lng,id) {
     if (flightPath != null)
         flightPath.setMap(null);
+    //building array of coordinates
     flightPlanCoordinates = [];
     var s_coords = { lat: s_lat, lng: s_lng };
     flightPlanCoordinates.push(s_coords);
     for (let i = 0; i < segments.length;i++) {
-        let y = segments[i];
         var coords = { lat: segments[i].latitude, lng: segments[i].longitude };
         flightPlanCoordinates.push(coords);
     }
