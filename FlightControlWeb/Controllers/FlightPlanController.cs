@@ -21,11 +21,9 @@ namespace FlightControlWeb.Controllers
         {
             this.flightManager = new FlightManager();
         }
-/*
-        public FlightPlanController()
-        {
-        }
-        */
+
+ 
+
         // GET: api/FlightPlan
         [HttpGet]
         public ConcurrentDictionary<string, FlightPlan> Get()
