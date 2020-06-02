@@ -57,6 +57,7 @@ function updateFlights(flights) {
     $("#tblBody").empty();
     showMarkers(null);
     markers_on_map = [];
+   
   
     // add to flight list
     let table = document.getElementById('flight_list');
@@ -157,6 +158,10 @@ function updateFlights(flights) {
        // var myLatLng = new google.maps.Map.LatLng(flight.latitude, flight.longitude);
      
     };
+    if ((flightPathId != null) && (!$("#" + flightPathId).length)) {
+        flightPlanCoordinates = [];
+        flightPath.setMap(null);
+    }
 
 }
 function showMarkers(map) {
