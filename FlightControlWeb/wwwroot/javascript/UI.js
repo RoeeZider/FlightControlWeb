@@ -16,6 +16,22 @@ function initMap() {
 }
 
 
+function startTime() {
+  var today = new Date();
+    var h = today.getHours();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+    m = checkTime(m);
+    s = checkTime(s);
+    document.getElementById('txt').innerHTML =h + ":" + m + ":" + s;
+    var t = setTimeout(startTime, 500);
+}
+
+function checkTime(i) {
+  if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+    return i;
+}
+
     
 function reset() {
     if (markers_on_map.length > 0) {
@@ -175,7 +191,7 @@ function showFlight(idFlight) {
                 $("#details_end_point").html(end_time.toISOString().replace(".000Z",""));
                 $("#details_passengers").html(flightPlan.passengers);
                 $("#details_company").html(flightPlan.company_name);
-                polyline(flightPlan.segments, idFlight);
+                polyline(flightPlan.segments, start_loc.latitude, start_loc.longitude, idFlight);
 
             },
         });
@@ -197,14 +213,14 @@ function clearDetails() {
     $("#details_company").empty();
 }
 
-function polyline(segments,id) {
+function polyline(segments,s_lat,s_lng,id) {
     if (flightPath != null)
         flightPath.setMap(null);
     flightPlanCoordinates = [];
+    var s_coords = { lat: s_lat, lng: s_lng };
+    flightPlanCoordinates.push(s_coords);
     for (let i = 0; i < segments.length;i++) {
         let y = segments[i];
-        let p = y.latitude;
-
         var coords = { lat: segments[i].latitude, lng: segments[i].longitude };
         flightPlanCoordinates.push(coords);
     }
