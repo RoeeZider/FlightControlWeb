@@ -20,13 +20,17 @@ namespace FlightControlWeb.Models
     {
         private static List<Flight> flights = new List<Flight>()
         {
-            new Flight { Flight_id="1", Longitude=27.000, Latitude=30.000, CompanyName="ZidAir",Is_external=true,Passengers=200,Date_time="18:54"},
-            new Flight{ Flight_id="2", Longitude=125.000, Latitude=10.000, CompanyName="HarelAir",Is_external=true,Passengers=400,Date_time="20:54"},
+            new Flight { Flight_id="1", Longitude=27.000, Latitude=30.000, CompanyName="ZidAir"
+                ,Is_external=true,Passengers=200,Date_time="18:54"},
+            new Flight{ Flight_id="2", Longitude=125.000, Latitude=10.000, CompanyName="HarelAir"
+                ,Is_external=true,Passengers=400,Date_time="20:54"},
         };
 
-        public static ConcurrentDictionary<string, FlightPlan> flightPlan = new ConcurrentDictionary<string, FlightPlan>() {};
-        public static ConcurrentDictionary<string, string> servers = new ConcurrentDictionary<string, string>()
-            ;
+        public static ConcurrentDictionary<string, FlightPlan> flightPlan = new 
+            ConcurrentDictionary<string, FlightPlan>();
+        public static ConcurrentDictionary<string, string> servers = new
+            ConcurrentDictionary<string, string>();
+            
 
         public void AddFlightt(Flight f)
         {
@@ -79,20 +83,47 @@ namespace FlightControlWeb.Models
         {
 
             //cheak valid
-
-            if(f.Company_name == null )
-            {
-                return false;
-            }
-            //|| f.Passengers.ToString() == null
-            //and for any location / segments
-            if (f.Segments==null || f.InitialLocation == null )
-            {
-                return false;
-            }
+            if (!IsValid(f)) return false;
 
             string id = Get_flight_id(f.Company_name);
             flightPlan[id] = f;
+            return true;
+        }
+
+        bool IsValid(FlightPlan f)
+        {
+            if (f.Company_name == null)
+            {
+                return false;
+            }
+            if (f.Passengers < 0) return false;
+
+            if (f.Segments == null || f.InitialLocation == null)
+            {
+                return false;
+            }
+
+            if (!CheckLatitude(f.InitialLocation.Latitude)) { return false; }
+            if (!CheckLongitude(f.InitialLocation.Longitude)) { return false; }
+            int i = 0;
+            for (; i < f.Segments.Count; ++i)
+            {
+                if (f.Segments[i].Timespan_seconds <= 0) { return false; }
+                if (!CheckLatitude(f.Segments[i].Latitude)) { return false; }
+                if (!CheckLongitude(f.Segments[i].Longitude)) { return false; }
+            }
+
+              bool CheckLatitude(double latitude)
+            {
+                if (latitude < -90 || latitude > 90) { return false; }
+                return true;
+            }
+              bool CheckLongitude(double longitude)
+            {
+                if (longitude < -180 || longitude > 180) { return false; }
+                return true;
+            }
+
             return true;
         }
 
@@ -164,7 +195,8 @@ namespace FlightControlWeb.Models
             HttpClient client = new HttpClient();
             foreach (KeyValuePair<string, string> s  in servers)
             {
-                HttpResponseMessage respone = await client.GetAsync(s.Value + "/api/FlightPlan/" + id);
+                HttpResponseMessage respone = await client.GetAsync(s.Value + "/api/FlightPlan/" 
+                    + id);
                 if (respone.IsSuccessStatusCode)
                 {
                     var content = respone.Content;
@@ -244,17 +276,22 @@ namespace FlightControlWeb.Models
                 //
 
                 Flight f = new Flight();
-                if (CheckSegments(flightSegments, f, flightTime, time,fp.Value.InitialLocation.Latitude, fp.Value.InitialLocation.Longitude))
+                //return new flight in this time 
+                f = CheckSegments(flightSegments, flightTime, time, fp.Value.InitialLocation.Latitude,
+                    fp.Value.InitialLocation.Longitude);
+
+                if(f!= null)
                 {
                     flights.Add(f);
+                    //create the flight
+                    f.Flight_id = fp.Key;
+                    f.Passengers = fp.Value.Passengers;
+                    f.CompanyName = fp.Value.Company_name;
+                    f.Date_time = dateTime;
+                    f.Is_external = false;
                 }
                 
-                //create the flight
-                f.Flight_id = fp.Key;
-                f.Passengers = fp.Value.Passengers;
-                f.CompanyName = fp.Value.Company_name;
-                f.Date_time = dateTime;
-                f.Is_external = false;
+               
             }
 
 
@@ -262,36 +299,80 @@ namespace FlightControlWeb.Models
 
             return flights;
         }
-        private bool CheckSegments(List<Segment> segments, Flight f, DateTime start, DateTime relative,double lat,double lon)
+        private Flight CheckSegments(List<Segment> segments,  DateTime start, DateTime relative,
+            double lat,double lon)
         {
-            bool isRelevant = false;
-            double startLat = lat;
-            double startLong = lon; ;
-            // Run over the segments.
-            foreach (Segment s in segments)
+            Flight f = new Flight();
+
+            Segment resultSegment = new Segment();
+            bool isFuture = true;
+            //string id = flightId;
+            double thisFlightLatitude = lat;
+            double thisFlightLongitude = lat;
+            DateTime thisFlightTime = start;
+            TimeSpan secondsPassedSpanTillNow = relative - thisFlightTime;
+            double secondsPassedTillNow = secondsPassedSpanTillNow.TotalSeconds;
+            // check the time.
+            int isOver = DateTime.Compare(relative, thisFlightTime);
+            if (isOver < 0)
             {
-                DateTime saveStart = start;
-                DateTime test = start.AddSeconds(s.Timespan_seconds);
-                // The plan is in this segment at the time is given.
-                if (DateTime.Compare(relative, start) >= 0 &&
-                    DateTime.Compare(relative, test) <= 0)
+                return null;
+            }
+            int i = 0;
+            Segment currSegment = new Segment();
+            // Find the segment we need.
+            Segment prevSegment = new Segment()
+            {
+                Latitude = lat,
+                Longitude = lon,
+                Timespan_seconds = 0,
+            };
+            foreach (var segment in segments)
+            {
+                if ((secondsPassedTillNow - segment.Timespan_seconds) < 0)
                 {
-                    TimeSpan difference = relative - saveStart;
-                    double k = difference.Seconds;
-                    double l = s.Timespan_seconds - k;
-                    f.Latitude = (startLat * l + s.Latitude * k) / (l + k);
-                    f.Longitude = (startLong * l + s.Longitude * k) / (l + k);
-                    isRelevant = true;
+                    currSegment = segment;
+                    isFuture = false;
                     break;
                 }
-                else
-                {
-                    // Save the start location of the segment.
-                    startLat = s.Latitude;
-                    startLong = s.Longitude;
-                }
+                secondsPassedTillNow -= segment.Timespan_seconds;
+
+                prevSegment = segment;
             }
-            return isRelevant;
+            if (isFuture)
+            {
+                return null;
+            }
+            double proportionalTime = secondsPassedTillNow / currSegment.Timespan_seconds;
+            resultSegment = GetNewLocation(prevSegment, currSegment, proportionalTime);
+            f.Longitude = resultSegment.Longitude;
+            f.Latitude = resultSegment.Latitude;
+            return f;
+        }
+        Segment GetNewLocation(Segment prevSegment, Segment currSegment, double proportionalTime)
+        {
+            double distLatitude = currSegment.Latitude - prevSegment.Latitude;
+            double distLongitude = currSegment.Longitude - prevSegment.Longitude;
+            double latitudeResult = prevSegment.Latitude + (proportionalTime * distLatitude);
+            double longitudeResult = prevSegment.Longitude + (proportionalTime * distLongitude);
+            Segment myLocation = new Segment
+            {
+                Latitude = latitudeResult,
+                Longitude = longitudeResult,
+            };
+            return myLocation;
+        }
+
+        private double GetLocation(double start,double end,DateTime time,
+            DateTime relative,int timeSpan)
+        {
+            double current = start;
+            double length = end - start;
+            int currentSec = (int)relative.Subtract(time).TotalSeconds;
+            
+            double timePass = (double)currentSec / (double)timeSpan;
+            current += timePass * length;
+            return current;
         }
 
         public static DateTime ConvertToDateTime(string str)

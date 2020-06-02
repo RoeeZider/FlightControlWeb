@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿﻿
+<!DOCTYPE html>
 <html>
 <head>
 
@@ -6,52 +7,86 @@
     <meta charset="utf-8" />
     <title>my app</title>
     <style>
-        html,body{height:100%;}
-       .container-fluid {
-    height: 100%;
-    width:100%;
-    min-height:100%;
-    max-width: unset;
-    max-height:unset;
-    
-}
-  
+        html, body {
+            height: 100%;
+        }
 
-       .highlight { background-color:darkred; }
+        .container-fluid {
+            height: 100%;
+            width: 100%;
+            min-height: 100%;
+            max-width: unset;
+            min-width: 600px;
+            max-height: unset;
+            position: fixed;
+        }
+
+        .my-custom-scrollbar {
+            position: relative;
+            height: 450px;
+            overflow: auto;
+        }
+
+        th {
+            font-size: 14px;
+        }
+
+
+        .highlightred {
+            background-color: darkred;
+        }
     </style>
 </head>
-<body>
-    <div class="container-fluid">
+<body onload="startTime()">
+    <script>
+        //document.addEventListener(`click`, reset());
+
+    </script>
+
+    <div class="container-fluid" style="background-color: lightgrey;" onclick="reset();">
+
         <div class="row h-100">
             <div class="section col-md-8">
                 <div class="row h-75 w-100">
-                    <div class="map col-lg-12" id="map">
-                        <h3>Map of the World</h3>
 
-                       <script src="javascript/UI.js"></script>
-                       
-                        <script async defer
-                                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTQHIYjwfjAoHyk5H59XrG3B7isO7sWjU&callback=initMap">
-                        </script>
-                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                    <div class="card-body card-body-cascade text-center" card title="map">
+                        <div class="card-header" style="font-size:20px; font-weight: bold;">
+                            Map of the world
+                        </div>
+                        <div class="z-depth-1-half map-container-5" style=" height: 90%; border: 5px solid grey;" id="map">
+                            <iframe src="https://maps.google.com/maps?q=Barcelona&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                                    frameborder="0" style="border:0" allowfullscreen></iframe>
+
+
+                            <script src="javascript/UI.js"></script>
+
+                            <script async defer
+                                    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTQHIYjwfjAoHyk5H59XrG3B7isO7sWjU&callback=initMap">
+                            </script>
+                            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                        </div>
                     </div>
+
                 </div>
 
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="container p-3 my-3 bg-dark text-white">
+
+                        <div class="card p-sm-1 bg-dark text-white">
+                            <h6 class="card-header">Flight Details</h6>
+
                             <div class="row">
-                                <div class="col-md-3">
-                                    <span class="badge badge-default">Company name:</span> <span class="badge badge-default">Start point:</span> <span class="badge badge-default">Takeoff time:</span>
+                                <div class="col-md-2">
+                                    <span class="badge badge-default">Company name:</span> <span class="badge badge-default">Takeoff time:</span> <span class="badge badge-default">Start point:</span>
                                 </div>
-                                <div class="col-md-3">
-                                    <span class="badge badge-primary" id="details_company"></span> <span class="badge badge-secondary" id="details_start_point"></span> <span class="badge badge-danger" id="details_takeoff"></span>
+                                <div class="col-md-4">
+                                    <span class="badge badge-primary" id="details_company"></span><br /> <span class="badge badge-secondary" id="details_start_point"></span> <br /><span class="badge badge-danger" id="details_takeoff"></span>
                                 </div>
-                                <div class="col-md-3">
-                                    <span class="badge badge-default">Passengers:</span> <span class="badge badge-default">End point:</span> <span class="badge badge-default">Landing:</span>
+                                <div class="col-md-2">
+                                    <span class="badge badge-default">Passengers:</span><br /> <span class="badge badge-default">Landing:</span> <br /><span class="badge badge-default">End point:</span>
                                 </div>
-                                <div class="col-md-3">
-                                    <span class="badge badge-primary" id="details_passengers"></span> <span class="badge badge-secondary" id="details_end_point"></span> <span class="badge badge-danger" id="details_landing"></span>
+                                <div class="col-md-4">
+                                    <span class="badge badge-primary" id="details_passengers"></span><br /> <span class="badge badge-secondary" id="details_end_point"></span> <br /><span class="badge badge-danger" id="details_landing"></span>
                                 </div>
                             </div>
                         </div>
@@ -59,42 +94,55 @@
                 </div>
             </div>
             <div class="col-md-4">
+
                 <div class="row h-75">
-                    <div class="col-md-12" style="background-color:#bbb;" id="flightsList">
-                        <h2>My Flights</h2>
-                        <table id="flight_list">
-                            <tr>
-          
-                                <th>Flight Id</th>
-                                <th>Company Name</th>
-                                <th>Delete</th>
-                            </tr>
-                            <!--enter flights by server-->
-                        </table>
-                        <script src="javascript/server_network.js"></script>
+                    <div class="col-md-12" id="flightsList">
+                        <div id="txt" style="position:absolute; right:10px;"></div>
+
+                        <h7 style="font-weight:700;">My Flights</h7>
+                        <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                            <table id="flight_list" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Flight Id</th>
+                                        <th scope="col">Company Name</th>
+                                        <th scope="col">Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tblBody">
+                                </tbody>
+                                <!--enter flights by server-->
+                            </table>
+                            <script src="javascript/server_network.js"></script>
+                        </div>
+
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12" id="drop_zone">
-                        <form class="my-form" method="post" action="/">
-                            <h3>upload file</h3>
-                            <label class="button" for="fileItem">select files</label>
-                            <input type="file" id="fileItem" accept="/application/json">
-                            <!-- READ FILE BUTTON -->
-                            <input type="button" id="submition" value="submit" onclick="readFiles()" />
-                        </form>
+                        <div class="card bg-light text-dark">
+
+                            <div class="card-body">
+                                <form class="my-form" method="post" action="/" onclick="event.stopPropagation();">
+
+                                    <label class="button active" for="fileItem">Upload file</label>
+                                    <input type="file" id="fileItem" accept="/application/json">
+
+                                    <input type="button" id="submition" value="submit" onclick="event.stopPropagation(); readFiles()" />
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
 
 
-        <script src="javascript/UI.js"></script>
-   
+    <script src="javascript/UI.js"></script>
+
     <script src="javascript/jquary.js"></script>
     <script src="javascript/bootstrap.min.js"></script>
 

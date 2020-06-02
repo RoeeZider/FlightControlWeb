@@ -71,7 +71,8 @@ namespace FlightsTest
             var flightAsync = (FlightPlan)b.Value;
             Assert.IsTrue(fakeFlightPlane.Passengers == flightAsync.Passengers);
             Assert.IsTrue(fakeFlightPlane.Company_name == flightAsync.Company_name);
-            Assert.IsTrue(fakeFlightPlane.InitialLocation.Latitude == flightAsync.InitialLocation.Latitude);
+            Assert.IsTrue(fakeFlightPlane.InitialLocation.Latitude ==
+                flightAsync.InitialLocation.Latitude);
 
         }
     }

@@ -1,15 +1,23 @@
 ﻿/// <reference path="jquary.min.js" />
-function postFlight(jsonString) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", 'api/FlightPlan', true);
-
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onreadystatechange = function () {
-        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            // Request finished. Do processing here.
-        }
+function postFlight(flightPlan) {
+    try {
+        JSON.parse(flightPlan);
+    } catch (e) {
+        alert("the text is not in a json format");
     }
-    xhr.send(jsonString);
+
+    const url = "/api/FlightPlan";
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        contentType: "application/json",
+        data: flightPlan,
+        success: function (data) {
+            alert("file uploaded successfuly");
+        },
+        error: function (xhr) { alert("Request Error!\nURL: " + url + "\nError: " + xhr.status + " - " + xhr.title); },
+    });
 }
 
 function delete_flight(id) {
@@ -32,14 +40,14 @@ $(document).ready(function () {
     getFlights();
     setInterval(function () {
         getFlights();
-    }, 10000);
+    }, 1000);
 });
 
 
 function getFlights() {
     let d = new Date(Date().toString('en-US', { timeZone: "Etc/GMT-0" }));
     let date = d.toISOString().replace(".000", "");
-    let url = "/api/Flights?relative_to=" +date ;
+    let url = "/api/Flights?relative_to=" + date + "&sync_all";
 
     $.ajax({
         type: "GET",
