@@ -307,18 +307,10 @@ namespace FlightControlWeb.Models
             Segment resultSegment = new Segment();
             bool isFuture = true;
             //string id = flightId;
-            double thisFlightLatitude = lat;
-            double thisFlightLongitude = lat;
             DateTime thisFlightTime = start;
             TimeSpan secondsPassedSpanTillNow = relative - thisFlightTime;
             double secondsPassedTillNow = secondsPassedSpanTillNow.TotalSeconds;
-            // check the time.
-            int isOver = DateTime.Compare(relative, thisFlightTime);
-            if (isOver < 0)
-            {
-                return null;
-            }
-            int i = 0;
+           
             Segment currSegment = new Segment();
             // Find the segment we need.
             Segment prevSegment = new Segment()
@@ -343,25 +335,17 @@ namespace FlightControlWeb.Models
             {
                 return null;
             }
-            double proportionalTime = secondsPassedTillNow / currSegment.Timespan_seconds;
-            resultSegment = GetNewLocation(prevSegment, currSegment, proportionalTime);
-            f.Longitude = resultSegment.Longitude;
-            f.Latitude = resultSegment.Latitude;
-            return f;
-        }
-        Segment GetNewLocation(Segment prevSegment, Segment currSegment, double proportionalTime)
-        {
+            double relation = secondsPassedTillNow / currSegment.Timespan_seconds;
             double distLatitude = currSegment.Latitude - prevSegment.Latitude;
             double distLongitude = currSegment.Longitude - prevSegment.Longitude;
-            double latitudeResult = prevSegment.Latitude + (proportionalTime * distLatitude);
-            double longitudeResult = prevSegment.Longitude + (proportionalTime * distLongitude);
-            Segment myLocation = new Segment
-            {
-                Latitude = latitudeResult,
-                Longitude = longitudeResult,
-            };
-            return myLocation;
+            double latitudeResult = prevSegment.Latitude + (relation * distLatitude);
+            double longitudeResult = prevSegment.Longitude + (relation * distLongitude);
+           
+            f.Longitude = longitudeResult;
+            f.Latitude = latitudeResult;
+            return f;
         }
+       
 
         private double GetLocation(double start,double end,DateTime time,
             DateTime relative,int timeSpan)
